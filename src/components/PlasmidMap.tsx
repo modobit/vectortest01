@@ -15,9 +15,19 @@ interface PlasmidMapProps {
     onRemovePart: (id: string) => void;
     orfCount: number;
     onOrfCountChange: (count: number) => void;
+    selectedPartId?: string | null;
+    onPartSelect?: (partId: string | null) => void;
 }
 
-export const PlasmidMap: React.FC<PlasmidMapProps> = ({ parts, onUpdatePart, onRemovePart, orfCount, onOrfCountChange }) => {
+export const PlasmidMap: React.FC<PlasmidMapProps> = ({ 
+    parts, 
+    onUpdatePart, 
+    onRemovePart, 
+    orfCount, 
+    onOrfCountChange,
+    selectedPartId = null,
+    onPartSelect
+}) => {
     const { isDark } = useTheme();
 
     const [activeModalPartId, setActiveModalPartId] = useState<string | null>(null);
@@ -91,7 +101,7 @@ export const PlasmidMap: React.FC<PlasmidMapProps> = ({ parts, onUpdatePart, onR
     };
 
     return (
-        <div className="relative flex flex-col justify-center items-center w-full h-full min-h-[800px] bg-white dark:bg-slate-900 overflow-visible">
+        <div className="relative flex flex-col justify-center items-center w-full h-full bg-white dark:bg-slate-900 overflow-visible">
             {/* ORF Selection Buttons - Top Center */}
             <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2">
                 {[1, 2, 3].map((count) => (
@@ -119,25 +129,39 @@ export const PlasmidMap: React.FC<PlasmidMapProps> = ({ parts, onUpdatePart, onR
 
                 {/* Draw Arcs */}
                 <g transform="rotate(-90)"> {/* Rotate so 0 is at 12 o'clock? No, D3 0 is 12 o'clock. Wait, D3 0 is 12 o'clock usually? No, 0 is 12 o'clock if we use sin/cos correctly. d3.arc 0 is 12 o'clock. */}
-                    {arcs.map((part) => (
-                        <g key={part.id} className="transition-all duration-300 hover:opacity-80 cursor-pointer">
-                            <path
-                                d={arcGenerator({
-                                    startAngle: part.startAngle,
-                                    endAngle: part.endAngle,
-                                }) || ''}
-                                fill={part.name ? part.color : (isDark ? '#374151' : '#ededed')} // Light gray for empty steps, darker in dark mode
-                               
-                                strokeWidth={2}
-                                className="transition-all duration-500"
+                    {arcs.map((part) => {
+                        const isSelected = selectedPartId === part.id;
+                        return (
+                            <g 
+                                key={part.id} 
+                                className="transition-all duration-300 hover:opacity-80 cursor-pointer"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    setViewPartId(part.id);
+                                    if (onPartSelect) {
+                                        onPartSelect(part.id);
+                                    } else {
+                                        setViewPartId(part.id);
+                                    }
                                 }}
-                            />
-                            {/* Add arrow head if it's a directional part? */}
-                        </g>
-                    ))}
+                            >
+                                <path
+                                    d={arcGenerator({
+                                        startAngle: part.startAngle,
+                                        endAngle: part.endAngle,
+                                    }) || ''}
+                                    fill={part.name ? part.color : (isDark ? '#374151' : '#ededed')} // Light gray for empty steps, darker in dark mode
+                                    stroke={isSelected ? '#3b82f6' : part.color} // Blue stroke when selected
+                                    strokeWidth={isSelected ? 4 : 2} // Thicker stroke when selected
+                                    className="transition-all duration-500"
+                                    style={{
+                                        filter: isSelected ? 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.6))' : 'none',
+                                        opacity: isSelected ? 1 : undefined
+                                    }}
+                                />
+                                {/* Add arrow head if it's a directional part? */}
+                            </g>
+                        );
+                    })}
                 </g>
 
                 {/* Total BP Size in Center */}
