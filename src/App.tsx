@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { PlasmidMap } from './components/PlasmidMap';
 import { usePlasmidState } from './usePlasmidState';
 
@@ -26,7 +26,7 @@ function App() {
                 <div className="w-full lg:w-80 bg-white border-l p-6 overflow-y-auto hidden lg:block">
                     <h2 className="font-bold text-lg mb-4 text-slate-800">Vector Summary</h2>
                     <div className="space-y-4">
-                        {parts.map((part, i) => (
+                        {parts.map((part) => (
                             <div key={part.id} className="flex items-start gap-3 text-sm">
                                 <div
                                     className="w-3 h-3 rounded-full mt-1 shrink-0"

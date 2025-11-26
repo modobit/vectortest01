@@ -2,9 +2,9 @@
 import React, { useMemo, useState } from 'react';
 import * as d3 from 'd3';
 import { PlasmidPart } from '../types';
-import { DATABASE, DatabaseEntry } from '../data/database';
+import { DATABASE } from '../data/database';
 import { DatabaseModal } from './DatabaseModal';
-import { X, ChevronDown, Database } from 'lucide-react';
+import { X, Database } from 'lucide-react';
 import clsx from 'clsx';
 
 interface PlasmidMapProps {
@@ -14,7 +14,7 @@ interface PlasmidMapProps {
 }
 
 export const PlasmidMap: React.FC<PlasmidMapProps> = ({ parts, onUpdatePart, onRemovePart }) => {
-    const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+
     const [activeModalPartId, setActiveModalPartId] = useState<string | null>(null);
 
     const activePart = parts.find(p => p.id === activeModalPartId);
@@ -26,7 +26,7 @@ export const PlasmidMap: React.FC<PlasmidMapProps> = ({ parts, onUpdatePart, onR
     const labelRadius = 280; // Where labels sit
 
     // Calculate layout
-    const { arcs, totalLength } = useMemo(() => {
+    const { arcs } = useMemo(() => {
         const totalLength = parts.reduce((sum, part) => sum + part.length, 0);
 
         let currentAngle = 0;
@@ -37,7 +37,7 @@ export const PlasmidMap: React.FC<PlasmidMapProps> = ({ parts, onUpdatePart, onR
             return { ...part, startAngle, endAngle };
         });
 
-        return { arcs, totalLength };
+        return { arcs };
     }, [parts]);
 
     // Arc generator
@@ -101,8 +101,8 @@ export const PlasmidMap: React.FC<PlasmidMapProps> = ({ parts, onUpdatePart, onR
                 {arcs.map((part) => {
                     if (part.type === 'backbone' && !part.label) return null; // Skip unlabelled backbone parts if any
 
-                    const { x, y, x0, y0, midAngle } = getLabelPos(part.startAngle, part.endAngle);
-                    const isRightSide = midAngle < Math.PI;
+                    const { x, y, x0, y0 } = getLabelPos(part.startAngle, part.endAngle);
+
 
                     // Adjust label position to be more horizontal-ish?
                     // Let's stick to radial for now, but maybe push x out a bit.
