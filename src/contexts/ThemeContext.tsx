@@ -9,22 +9,22 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isDark, setIsDark] = useState<boolean>(() => {
-        // Check localStorage first, then system preference
-        const stored = localStorage.getItem('theme');
+        // Check localStorage first, otherwise default to light
+        const stored = localStorage.getItem('theme_mode');
         if (stored) {
             return stored === 'dark';
         }
-        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+        return false;
     });
 
     useEffect(() => {
         // Apply theme to document
         if (isDark) {
             document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
+            localStorage.setItem('theme_mode', 'dark');
         } else {
             document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
+            localStorage.setItem('theme_mode', 'light');
         }
     }, [isDark]);
 
